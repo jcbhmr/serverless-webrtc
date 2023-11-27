@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+
+	<title>Document</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+
+	<script type="module">
+		const ws = {
+			send: x => console.log("SEND", x)
+
+		}
+
+		const pc = new RTCPeerConnection()
+		const dc = pc.createDataChannel("mydata")
+		dc.onopen = console.log
+		dc.onclose = console.log
+		
+		pc.onicecandidate = event => {
+			if (event.candidate) {
+				ws.send(JSON.stringify({
+					type: "icecandidate",
+					candidate: event.candidate
+				}))
+			}
+		}
+		const offer = await pc.createOffer()
+		await pc.setLocalDescription(offer)
+		ws.send(JSON.stringify({
+			type: "setRemoteDescription",
+			localDescription: pc.localDescription
+		}))
+	</script>
+</head>
+<body>
+</body>
+</html>
